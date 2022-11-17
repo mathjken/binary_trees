@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "binary_trees.h"
 
 size_t height(const binary_tree_t *tree);
