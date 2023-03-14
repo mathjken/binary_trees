@@ -1,64 +1,60 @@
-#include <stdlib.h>
 #include "binary_trees.h"
 
 /**
- * create_tree - creates an AVL tree with recursion
+ * tree_builder - Builds an AVL tree from a sorted array.
+ * @parent: The AVL tree's parent.
+ * @array: The sorted array of integers.
+ * @size: The length of the given array.
  *
- * @node: pointer node
- * @array: input array of integers
- * @size: size of array
- * @mode: 1 to adding on the left, 2 to adding on the right
- * Return: no return
+ * Return: A pointer to the root of thhe AVL tree, otherwise NULL.
  */
-void create_tree(avl_t **node, int *array, size_t size, int mode)
+avl_t *tree_builder(avl_t *parent, int *array, int size)
 {
-	size_t middle;
+	int *array_l = NULL, *array_r = NULL;
+	int size_l = 0, size_r = 0, len = 0;
+	avl_t *p = NULL, *l = NULL, *r = NULL;
 
-	if (size == 0)
-		return;
-
-	middle = (size / 2);
-	middle = (size % 2 == 0) ? middle - 1 : middle;
-
-	if (mode == 1)
+	if ((size > 0) && (array != NULL))
 	{
-		(*node)->left = binary_tree_node(*node, array[middle]);
-		create_tree(&((*node)->left), array, middle, 1);
-		create_tree(&((*node)->left), array + middle + 1, (size - 1 - middle), 2);
+		p = malloc(sizeof(avl_t));
+		if (p != NULL)
+		{
+			len = size - 1;
+			size_l = (len / 2);
+			size_r = len - (len / 2);
+			if (size_l > 0)
+			{
+				array_l = array;
+				l = tree_builder(p, array_l, size_l);
+			}
+			if (size_r > 0)
+			{
+				array_r = array + size_l + 1;
+				r = tree_builder(p, array_r, size_r);
+			}
+			p->parent = parent;
+			p->left = l;
+			p->right = r;
+			p->n = *(array + (size / 2) - (size % 2 == 0 ? 1 : 0));
+		}
 	}
-	else
-	{
-		(*node)->right = binary_tree_node(*node, array[middle]);
-		create_tree(&((*node)->right), array, middle, 1);
-		create_tree(&((*node)->right), array + middle + 1, (size - 1 - middle), 2);
-	}
+	return (p);
 }
 
 /**
- * sorted_array_to_avl - creates root node and calls to create_tree
+ * sorted_array_to_avl - Builds an AVL tree from a sorted array.
+ * @array: The sorted array of integers.
+ * @size: The length of the given array.
  *
- * @array: input array of integers
- * @size: size of array
- * Return: pointer to the root
+ * Return: A pointer to the root of thhe AVL tree, otherwise NULL.
  */
 avl_t *sorted_array_to_avl(int *array, size_t size)
 {
-	avl_t *root;
-	size_t middle;
+	avl_t *root = NULL;
 
-	root = NULL;
-
-	if (size == 0)
-		return (NULL);
-
-	middle = (size / 2);
-
-	middle = (size % 2 == 0) ? middle - 1 : middle;
-
-	root = binary_tree_node(root, array[middle]);
-
-	create_tree(&root, array, middle, 1);
-	create_tree(&root, array + middle + 1, (size - 1 - middle), 2);
-
+	if (array != NULL)
+	{
+		root = tree_builder(root, array, (int)size);
+	}
 	return (root);
 }
